@@ -30,10 +30,10 @@ config = configparser.ConfigParser()
 try:
     with open(expected_config_file) as f:
         config.read_file(f)
+        samp_rate = int(config["graph"]["sample_rate"])
+        centre_freq = int(config["graph"]["centre_freq"])
         fft_resolution = int(config["graph"]["fft_resolution"])
         fft_frame_rate = int(config["graph"]["fft_frame_rate"])
-        decimation = int(config["graph"]["decimation"])
-        samp_rate = int(config["graph"]["sample_rate"])
         start_freq = int(config["client"]["start_freq"])
         end_freq = int(config["client"]["end_freq"])
         freq_bin_range = int(config["client"]["freq_bin_range"])

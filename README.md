@@ -1,28 +1,31 @@
 # SDREventDetector
 
-Hat tip to TechMinds for outlining the [art of the possible](https://www.youtube.com/watch?v=-ikeMSn35T0) here.
-
-Now have more insight as to when these fascinating beasties visit my back garden.
+Log, message and graph simple SDR derived local events such car key fobs being pressed, mobile phones transmitting, bats chirping or whatever within the range your SDR is operating at.
 
 # Installation
 
 Tested on Pi Debian Bookwork 64bit 2024-03-15.
 
-Some experience will be needed with Linux, GnuRadio and a sensor / SDR receiver pair that works in the frequency range required
+Some experience will be needed with Linux, GnuRadio and a sensor / SDR receiver pair that works in the frequency range required.
 
-Note: a venv is needed for visualisation scripts as plotnine install can muck up gnuradio
+Note: a venv is needed for visualisation scripts as plotnine install can muck up gnuradio.
 
 ```console
 sudo apt-get update 
 sudo apt-get upgrade
-sudo apt-get install cmake gnuradio python3-paho-mqtt ffmpeg
+sudo apt-get install cmake gnuradio python3-dev python3-paho-mqtt ffmpeg
 python3 -m venv venv
 source venv/bin/activate
 pip3 install plotnine
-exit
+deactivate
 ```
 
-Then follow the specific instructions required for your software radio libraries and gnuradio interface.
+Then follow the specific instructions required for your software radio libraries and gnuradio interface. e.g. for rtlsdr using built in gnu radio soapy RTLSDR source:
+
+```console
+sudo apt-get install rtl-sdr
+```
+
 
 # Design
 
@@ -97,7 +100,7 @@ Note that in the line above, 25000 comes from sample_rate/decimation in the ini 
 
 Note any errors creating the venv above, you may need to install other packages as auggested for this.
 
-Then to subsequently use and create [events-by-timeofday.jpg](./example-events-by-timeofday.jpg) and [events-by-frequency.jpg](./example-events-by-frequency.jpg):
+# Visualisation
 
 ```console
 bash ./visualise.sh

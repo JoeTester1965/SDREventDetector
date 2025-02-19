@@ -9,9 +9,9 @@ options:
     description: ''
     gen_cmake: 'On'
     gen_linking: dynamic
-    generate_options: no_gui
+    generate_options: qt_gui
     hier_block_src_path: '.:'
-    id: SDRPlayBatDetector
+    id: SDREventDetector
     max_nouts: '0'
     output_language: python
     placement: (0,0)
@@ -22,73 +22,56 @@ options:
     run_options: run
     sizing_mode: fixed
     thread_safe_setters: ''
-    title: SDRPlayBatDetector-grc
+    title: SDREventDetector-grc
     window_size: (1000,1000)
   states:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [64, 4.0]
+    coordinate: [88, 28.0]
     rotation: 0
     state: enabled
 
 blocks:
-- name: audio_conversion_gain
+- name: center_freq
   id: variable_config
   parameters:
     comment: ''
-    config_file: ./SDRPlayBatDetector.ini
-    option: audio_conversion_gain
+    config_file: /home/pi/Documents/SDREventDetector/SDREventDetector.ini
+    option: center_freq
     section: graph
     type: int
-    value: '256'
+    value: '434000000'
     writeback: None
   states:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [960, 28.0]
-    rotation: 0
-    state: enabled
-- name: decimation
-  id: variable_config
-  parameters:
-    comment: ''
-    config_file: ./SDRPlayBatDetector.ini
-    option: decimation
-    section: graph
-    type: int
-    value: '10'
-    writeback: None
-  states:
-    bus_sink: false
-    bus_source: false
-    bus_structure: null
-    coordinate: [456, 28.0]
+    coordinate: [256, 28.0]
     rotation: 0
     state: true
 - name: fft_frame_rate
   id: variable_config
   parameters:
     comment: ''
-    config_file: ./SDRPlayBatDetector.ini
+    config_file: /home/pi/Documents/SDREventDetector/SDREventDetector.ini
     option: fft_frame_rate
     section: graph
     type: int
-    value: '10'
+    value: '20'
     writeback: None
   states:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [792, 28.0]
+    coordinate: [736, 28.0]
     rotation: 0
     state: true
 - name: fft_resolution
   id: variable_config
   parameters:
     comment: ''
-    config_file: ./SDRPlayBatDetector.ini
+    config_file: /home/pi/Documents/SDREventDetector/SDREventDetector.ini
     option: fft_resolution
     section: graph
     type: int
@@ -98,40 +81,24 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [624, 28.0]
+    coordinate: [576, 28.0]
     rotation: 0
     state: true
 - name: samp_rate
   id: variable_config
   parameters:
     comment: ''
-    config_file: ./SDRPlayBatDetector.ini
+    config_file: /home/pi/Documents/SDREventDetector/SDREventDetector.ini
     option: samp_rate
     section: graph
     type: int
-    value: '250000'
+    value: '2048000'
     writeback: None
   states:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [288, 28.0]
-    rotation: 0
-    state: true
-- name: blocks_complex_to_real_0
-  id: blocks_complex_to_real
-  parameters:
-    affinity: ''
-    alias: ''
-    comment: ''
-    maxoutbuf: '0'
-    minoutbuf: '0'
-    vlen: '1'
-  states:
-    bus_sink: false
-    bus_source: false
-    bus_structure: null
-    coordinate: [624, 584.0]
+    coordinate: [416, 28.0]
     rotation: 0
     state: true
 - name: blocks_correctiq_0
@@ -146,9 +113,9 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [328, 208.0]
+    coordinate: [368, 224.0]
     rotation: 0
-    state: enabled
+    state: disabled
 - name: blocks_file_sink_0
   id: blocks_file_sink
   parameters:
@@ -156,7 +123,7 @@ blocks:
     alias: ''
     append: 'False'
     comment: ''
-    file: bat-recording
+    file: test-recording
     type: complex
     unbuffered: 'False'
     vlen: '1'
@@ -164,7 +131,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [608, 204.0]
+    coordinate: [616, 356.0]
     rotation: 0
     state: disabled
 - name: blocks_file_source_0
@@ -172,9 +139,9 @@ blocks:
   parameters:
     affinity: ''
     alias: ''
-    begin_tag: pmt.intern("bat")
+    begin_tag: pmt.PMT_NIL
     comment: ''
-    file: bat-recording
+    file: test-recording
     length: '0'
     maxoutbuf: '0'
     minoutbuf: '0'
@@ -186,27 +153,9 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [72, 268.0]
+    coordinate: [96, 268.0]
     rotation: 0
-    state: disabled
-- name: blocks_multiply_const_vxx_0
-  id: blocks_multiply_const_vxx
-  parameters:
-    affinity: ''
-    alias: ''
-    comment: ''
-    const: audio_conversion_gain
-    maxoutbuf: '0'
-    minoutbuf: '0'
-    type: float
-    vlen: '1'
-  states:
-    bus_sink: false
-    bus_source: false
-    bus_structure: null
-    coordinate: [840, 572.0]
-    rotation: 0
-    state: true
+    state: enabled
 - name: blocks_throttle_0
   id: blocks_throttle
   parameters:
@@ -223,9 +172,9 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [328, 284.0]
+    coordinate: [368, 300.0]
     rotation: 0
-    state: disabled
+    state: enabled
 - name: freq_xlating_fir_filter_xxx_0
   id: freq_xlating_fir_filter_xxx
   parameters:
@@ -243,9 +192,9 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [336, 532.0]
+    coordinate: [360, 412.0]
     rotation: 0
-    state: true
+    state: disabled
 - name: logpwrfft_x_0
   id: logpwrfft_x
   parameters:
@@ -266,55 +215,9 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [616, 340.0]
+    coordinate: [616, 212.0]
     rotation: 0
     state: enabled
-- name: network_udp_sink_0
-  id: network_udp_sink
-  parameters:
-    addr: 192.168.1.77
-    affinity: ''
-    alias: ''
-    comment: ''
-    header: '0'
-    payloadsize: '1472'
-    port: '50243'
-    send_eof: 'False'
-    type: float
-    vlen: '1'
-  states:
-    bus_sink: false
-    bus_source: false
-    bus_structure: null
-    coordinate: [1088, 524.0]
-    rotation: 0
-    state: true
-- name: note_0
-  id: note
-  parameters:
-    alias: ''
-    comment: ''
-    note: zmqpubsink.py
-  states:
-    bus_sink: false
-    bus_source: false
-    bus_structure: null
-    coordinate: [904, 244.0]
-    rotation: 0
-    state: true
-- name: note_0_0
-  id: note
-  parameters:
-    alias: ''
-    comment: ''
-    note: zmqpubsink.py
-  states:
-    bus_sink: false
-    bus_source: false
-    bus_structure: null
-    coordinate: [72, 548.0]
-    rotation: 0
-    state: true
 - name: qtgui_vector_sink_f_0
   id: qtgui_vector_sink_f
   parameters:
@@ -331,7 +234,7 @@ blocks:
     alpha8: '1.0'
     alpha9: '1.0'
     autoscale: 'False'
-    average: '0.1'
+    average: '1.0'
     color1: '"blue"'
     color10: '"dark blue"'
     color2: '"red"'
@@ -362,7 +265,7 @@ blocks:
     nconnections: '1'
     ref_level: '-80'
     showports: 'False'
-    update_time: '0.10'
+    update_time: '0.05'
     vlen: fft_resolution
     width1: '1'
     width10: '1'
@@ -380,139 +283,37 @@ blocks:
     x_units: '""'
     y_axis_label: '"y-Axis"'
     y_units: '""'
-    ymax: '10'
-    ymin: '-140'
+    ymax: '-0'
+    ymin: '-80'
   states:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [832, 420.0]
-    rotation: 0
-    state: disabled
-- name: qtgui_waterfall_sink_x_0
-  id: qtgui_waterfall_sink_x
-  parameters:
-    affinity: ''
-    alias: ''
-    alpha1: '1.0'
-    alpha10: '1.0'
-    alpha2: '1.0'
-    alpha3: '1.0'
-    alpha4: '1.0'
-    alpha5: '1.0'
-    alpha6: '1.0'
-    alpha7: '1.0'
-    alpha8: '1.0'
-    alpha9: '1.0'
-    axislabels: 'True'
-    bw: samp_rate
-    color1: '1'
-    color10: '0'
-    color2: '0'
-    color3: '0'
-    color4: '0'
-    color5: '0'
-    color6: '0'
-    color7: '0'
-    color8: '0'
-    color9: '0'
-    comment: ''
-    fc: '0'
-    fftsize: fft_resolution
-    freqhalf: 'True'
-    grid: 'False'
-    gui_hint: ''
-    int_max: '-60'
-    int_min: '-110'
-    label1: ''
-    label10: ''
-    label2: ''
-    label3: ''
-    label4: ''
-    label5: ''
-    label6: ''
-    label7: ''
-    label8: ''
-    label9: ''
-    legend: 'True'
-    maxoutbuf: '0'
-    minoutbuf: '0'
-    name: '""'
-    nconnections: '1'
-    showports: 'False'
-    type: complex
-    update_time: '0.10'
-    wintype: window.WIN_BLACKMAN_hARRIS
-  states:
-    bus_sink: false
-    bus_source: false
-    bus_structure: null
-    coordinate: [624, 492.0]
-    rotation: 0
-    state: disabled
-- name: sdrplay3_rspdxr2_0
-  id: sdrplay3_rspdxr2
-  parameters:
-    AGC: 'False'
-    affinity: ''
-    agc_set_point: '-30'
-    alias: ''
-    antenna: Antenna B
-    bandwidth: '0'
-    biasT: 'False'
-    center_freq: '0'
-    comment: ''
-    dab_notch_filter: 'False'
-    dc_offset_mode: 'True'
-    debug_mode: 'False'
-    freq_corr: '0'
-    hdr_mode: 'False'
-    if_gRdB: '59'
-    iq_balance_mode: 'True'
-    maxoutbuf: '0'
-    minoutbuf: '0'
-    output_type: fc32
-    rf_gRLNA: '0'
-    rf_gR_mode: dB
-    rf_gRdB: '0'
-    rf_notch_filter: 'False'
-    rsp_selector: ''
-    sample_rate: samp_rate
-    sample_sequence_gaps_check: 'False'
-    show_gain_changes: 'False'
-  states:
-    bus_sink: false
-    bus_source: false
-    bus_structure: null
-    coordinate: [80, 132.0]
+    coordinate: [896, 324.0]
     rotation: 0
     state: enabled
-- name: virtual_sink_0
-  id: virtual_sink
+- name: soapy_rtlsdr_source_0
+  id: soapy_rtlsdr_source
   parameters:
+    affinity: ''
+    agc: 'False'
     alias: ''
+    center_freq: center_freq
     comment: ''
-    stream_id: audio_processing
+    dev_args: ''
+    freq_correction: '0'
+    gain: '20'
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    samp_rate: samp_rate
+    type: fc32
   states:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [608, 292.0]
+    coordinate: [96, 196.0]
     rotation: 0
-    state: true
-- name: virtual_source_0
-  id: virtual_source
-  parameters:
-    alias: ''
-    comment: ''
-    stream_id: audio_processing
-  states:
-    bus_sink: false
-    bus_source: false
-    bus_structure: null
-    coordinate: [64, 388.0]
-    rotation: 0
-    state: true
+    state: disabled
 - name: zeromq_pub_sink_0
   id: zeromq_pub_sink
   parameters:
@@ -531,9 +332,9 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [888, 284.0]
+    coordinate: [896, 212.0]
     rotation: 0
-    state: true
+    state: enabled
 - name: zeromq_pull_msg_source_0
   id: zeromq_pull_msg_source
   parameters:
@@ -549,25 +350,18 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [40, 492.0]
+    coordinate: [88, 404.0]
     rotation: 0
-    state: enabled
+    state: disabled
 
 connections:
-- [blocks_complex_to_real_0, '0', blocks_multiply_const_vxx_0, '0']
 - [blocks_correctiq_0, '0', blocks_file_sink_0, '0']
 - [blocks_correctiq_0, '0', logpwrfft_x_0, '0']
-- [blocks_correctiq_0, '0', qtgui_waterfall_sink_x_0, '0']
-- [blocks_correctiq_0, '0', virtual_sink_0, '0']
 - [blocks_file_source_0, '0', blocks_throttle_0, '0']
-- [blocks_multiply_const_vxx_0, '0', network_udp_sink_0, '0']
 - [blocks_throttle_0, '0', logpwrfft_x_0, '0']
-- [blocks_throttle_0, '0', virtual_sink_0, '0']
-- [freq_xlating_fir_filter_xxx_0, '0', blocks_complex_to_real_0, '0']
 - [logpwrfft_x_0, '0', qtgui_vector_sink_f_0, '0']
 - [logpwrfft_x_0, '0', zeromq_pub_sink_0, '0']
-- [sdrplay3_rspdxr2_0, '0', blocks_correctiq_0, '0']
-- [virtual_source_0, '0', freq_xlating_fir_filter_xxx_0, '0']
+- [soapy_rtlsdr_source_0, '0', blocks_correctiq_0, '0']
 - [zeromq_pull_msg_source_0, out, freq_xlating_fir_filter_xxx_0, freq]
 
 metadata:

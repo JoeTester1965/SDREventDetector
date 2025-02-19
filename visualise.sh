@@ -21,4 +21,6 @@ fi
 cp -f events-by-frequency.jpg $dir-events-by-frequency.jpg
 cp -f events-by-timeofday.jpg $dir-events-by-timeofday.jpg
 
+deactivate
+
 exit
