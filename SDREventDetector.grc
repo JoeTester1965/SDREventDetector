@@ -28,77 +28,69 @@ options:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [88, 28.0]
+    coordinate: [88, 12.0]
     rotation: 0
     state: enabled
 
 blocks:
-- name: center_freq
-  id: variable_config
+- name: center_freq_default
+  id: variable
   parameters:
     comment: ''
-    config_file: /home/pi/Documents/SDREventDetector/SDREventDetector.ini
-    option: center_freq
-    section: graph
-    type: int
     value: '434000000'
-    writeback: None
   states:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [256, 28.0]
+    coordinate: [272, 12.0]
     rotation: 0
     state: true
-- name: fft_frame_rate
-  id: variable_config
+- name: fft_frame_rate_default
+  id: variable
   parameters:
     comment: ''
-    config_file: /home/pi/Documents/SDREventDetector/SDREventDetector.ini
-    option: fft_frame_rate
-    section: graph
-    type: int
     value: '20'
-    writeback: None
   states:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [736, 28.0]
+    coordinate: [688, 12.0]
     rotation: 0
     state: true
-- name: fft_resolution
-  id: variable_config
+- name: fft_resolution_default
+  id: variable
   parameters:
     comment: ''
-    config_file: /home/pi/Documents/SDREventDetector/SDREventDetector.ini
-    option: fft_resolution
-    section: graph
-    type: int
     value: '1024'
-    writeback: None
   states:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [576, 28.0]
+    coordinate: [408, 12.0]
     rotation: 0
     state: true
-- name: samp_rate
-  id: variable_config
+- name: gain_default
+  id: variable
   parameters:
     comment: ''
-    config_file: /home/pi/Documents/SDREventDetector/SDREventDetector.ini
-    option: samp_rate
-    section: graph
-    type: int
-    value: '2048000'
-    writeback: None
+    value: '20'
   states:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [416, 28.0]
+    coordinate: [272, 76.0]
+    rotation: 0
+    state: true
+- name: samp_rate_default
+  id: variable
+  parameters:
+    comment: ''
+    value: '2048000'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [552, 12.0]
     rotation: 0
     state: true
 - name: blocks_correctiq_0
@@ -113,7 +105,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [368, 224.0]
+    coordinate: [600, 184.0]
     rotation: 0
     state: disabled
 - name: blocks_file_sink_0
@@ -131,7 +123,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [616, 356.0]
+    coordinate: [104, 340.0]
     rotation: 0
     state: disabled
 - name: blocks_file_source_0
@@ -153,7 +145,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [96, 268.0]
+    coordinate: [336, 324.0]
     rotation: 0
     state: enabled
 - name: blocks_throttle_0
@@ -165,36 +157,16 @@ blocks:
     ignoretag: 'True'
     maxoutbuf: '0'
     minoutbuf: '0'
-    samples_per_second: samp_rate
+    samples_per_second: samp_rate_default
     type: complex
     vlen: '1'
   states:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [368, 300.0]
+    coordinate: [528, 356.0]
     rotation: 0
     state: enabled
-- name: freq_xlating_fir_filter_xxx_0
-  id: freq_xlating_fir_filter_xxx
-  parameters:
-    affinity: ''
-    alias: ''
-    center_freq: samp_rate/4
-    comment: ''
-    decim: decimation
-    maxoutbuf: '0'
-    minoutbuf: '0'
-    samp_rate: samp_rate
-    taps: ' firdes.low_pass(1,samp_rate,samp_rate/decimation/3,100)'
-    type: ccc
-  states:
-    bus_sink: false
-    bus_source: false
-    bus_structure: null
-    coordinate: [360, 412.0]
-    rotation: 0
-    state: disabled
 - name: logpwrfft_x_0
   id: logpwrfft_x
   parameters:
@@ -203,21 +175,99 @@ blocks:
     average: 'True'
     avg_alpha: '1.0'
     comment: ''
-    fft_size: fft_resolution
-    frame_rate: fft_frame_rate
+    fft_size: fft_resolution_default
+    frame_rate: fft_frame_rate_default
     maxoutbuf: '0'
     minoutbuf: '0'
     ref_scale: '1'
-    sample_rate: samp_rate
+    sample_rate: samp_rate_default
     shift: 'True'
     type: complex
   states:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [616, 212.0]
+    coordinate: [848, 132.0]
     rotation: 0
     state: enabled
+- name: note_0
+  id: note
+  parameters:
+    alias: ''
+    comment: ''
+    note: see zmqpubsink.py
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [1096, 252.0]
+    rotation: 0
+    state: true
+- name: note_0_0
+  id: note
+  parameters:
+    alias: ''
+    comment: ''
+    note: see zmqpubsink.py
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [104, 228.0]
+    rotation: 0
+    state: enabled
+- name: note_0_1
+  id: note
+  parameters:
+    alias: ''
+    comment: ''
+    note: 'enable if needed '
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [104, 412.0]
+    rotation: 0
+    state: true
+- name: note_0_1_0
+  id: note
+  parameters:
+    alias: ''
+    comment: ''
+    note: enable if needed
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [328, 428.0]
+    rotation: 0
+    state: true
+- name: note_0_1_0_0
+  id: note
+  parameters:
+    alias: ''
+    comment: ''
+    note: enable if needed
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [1112, 412.0]
+    rotation: 0
+    state: enabled
+- name: note_0_1_0_0_0
+  id: note
+  parameters:
+    alias: ''
+    comment: ''
+    note: QT GUI as needed
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [96, 116.0]
+    rotation: 0
+    state: true
 - name: qtgui_vector_sink_f_0
   id: qtgui_vector_sink_f
   parameters:
@@ -266,7 +316,7 @@ blocks:
     ref_level: '-80'
     showports: 'False'
     update_time: '0.05'
-    vlen: fft_resolution
+    vlen: fft_resolution_default
     width1: '1'
     width10: '1'
     width2: '1'
@@ -289,7 +339,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [896, 324.0]
+    coordinate: [1112, 324.0]
     rotation: 0
     state: enabled
 - name: soapy_rtlsdr_source_0
@@ -298,20 +348,20 @@ blocks:
     affinity: ''
     agc: 'False'
     alias: ''
-    center_freq: center_freq
+    center_freq: center_freq_default
     comment: ''
     dev_args: ''
     freq_correction: '0'
-    gain: '20'
+    gain: gain_default
     maxoutbuf: '0'
     minoutbuf: '0'
-    samp_rate: samp_rate
+    samp_rate: samp_rate_default
     type: fc32
   states:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [96, 196.0]
+    coordinate: [336, 172.0]
     rotation: 0
     state: disabled
 - name: zeromq_pub_sink_0
@@ -327,12 +377,12 @@ blocks:
     pass_tags: 'False'
     timeout: '100'
     type: float
-    vlen: fft_resolution
+    vlen: fft_resolution_default
   states:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [896, 212.0]
+    coordinate: [1088, 148.0]
     rotation: 0
     state: enabled
 - name: zeromq_pull_msg_source_0
@@ -350,7 +400,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [88, 404.0]
+    coordinate: [88, 172.0]
     rotation: 0
     state: disabled
 
@@ -362,7 +412,7 @@ connections:
 - [logpwrfft_x_0, '0', qtgui_vector_sink_f_0, '0']
 - [logpwrfft_x_0, '0', zeromq_pub_sink_0, '0']
 - [soapy_rtlsdr_source_0, '0', blocks_correctiq_0, '0']
-- [zeromq_pull_msg_source_0, out, freq_xlating_fir_filter_xxx_0, freq]
+- [zeromq_pull_msg_source_0, out, soapy_rtlsdr_source_0, cmd]
 
 metadata:
   file_format: 1

@@ -1,0 +1,27 @@
+
+1. Is it possible for zmqpubsink.py to change cmd hooks and Variable Config dynamically?
+
+Messages
+Source and Sink blocks accept messages on the cmd port. Messages are in PMT dict format, and contain the following keys
+
+chan specifies the channel to which the message applies. Omit to affect all channels or if there is only one channel (common case).
+freq tune frequency (double)
+gain overall gain setting (float)
+antenna antenna name (string)
+rate sample rate (double)
+bandwidth filter bandwidth (double)
+Multiple keys may be present in one message. Behavior is somewhat dependent on the driver.
+
+Debugging
+The GNU Radio gr-soapy module depends on a working installation of SoapySDR and drivers. If something is not working, verify the following first:
+
+Use SoapySDRUtil --info to see info on the SoapySDR installation. Version should match the one used to build GNU Radio. Driver modules (shared objects) and the associated factories (device types) are shown. Verify that the required modules are shown, and that the listed module directories match the expected installation paths for any modules built from source.
+SoapySDRUtil --find will look for hardware matching the available drivers. The keywords shown can be used as device args in case there are multiple SDRs of the same type on the system.
+SoapySDRUtil --probe=driver=rtlsdr, or a similar command for other drivers, returns detailed information about a device. Valid sample rates, bandwidths, and gains are shown. Note that the GRC blocks may not use all of the features shown. For example, simple versions of GRC blocks may use single frequency or gain values instead of allowing control over specific tuning or gain elements.
+Make sure that the SoapySDR device can be opened for use, using SoapySDRUtil --make=driver=rtlsdr. Solve any permission problems, e.g. with USB.
+Check that gnuradio-config-info --enabled-components includes gr-soapy.
+
+https://wiki.gnuradio.org/index.php/Message_Passing
+
+3. Add to README Soapy nts when above working
+https://wiki.gnuradio.org/index.php/Soapy

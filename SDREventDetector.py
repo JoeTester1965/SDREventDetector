@@ -37,7 +37,6 @@ from gnuradio.eng_arg import eng_float, intx
 from gnuradio import eng_notation
 from gnuradio import zeromq
 from gnuradio.fft import logpwrfft
-import configparser
 
 
 
@@ -79,34 +78,19 @@ class SDREventDetector(gr.top_block, Qt.QWidget):
         ##################################################
         # Variables
         ##################################################
-        self._samp_rate_config = configparser.ConfigParser()
-        self._samp_rate_config.read('/home/pi/Documents/SDREventDetector/SDREventDetector.ini')
-        try: samp_rate = self._samp_rate_config.getint('graph', 'samp_rate')
-        except: samp_rate = 2048000
-        self.samp_rate = samp_rate
-        self._fft_resolution_config = configparser.ConfigParser()
-        self._fft_resolution_config.read('/home/pi/Documents/SDREventDetector/SDREventDetector.ini')
-        try: fft_resolution = self._fft_resolution_config.getint('graph', 'fft_resolution')
-        except: fft_resolution = 1024
-        self.fft_resolution = fft_resolution
-        self._fft_frame_rate_config = configparser.ConfigParser()
-        self._fft_frame_rate_config.read('/home/pi/Documents/SDREventDetector/SDREventDetector.ini')
-        try: fft_frame_rate = self._fft_frame_rate_config.getint('graph', 'fft_frame_rate')
-        except: fft_frame_rate = 20
-        self.fft_frame_rate = fft_frame_rate
-        self._center_freq_config = configparser.ConfigParser()
-        self._center_freq_config.read('/home/pi/Documents/SDREventDetector/SDREventDetector.ini')
-        try: center_freq = self._center_freq_config.getint('graph', 'center_freq')
-        except: center_freq = 434000000
-        self.center_freq = center_freq
+        self.samp_rate_default = samp_rate_default = 2048000
+        self.gain_default = gain_default = 20
+        self.fft_resolution_default = fft_resolution_default = 1024
+        self.fft_frame_rate_default = fft_frame_rate_default = 20
+        self.center_freq_default = center_freq_default = 434000000
 
         ##################################################
         # Blocks
         ##################################################
 
-        self.zeromq_pub_sink_0 = zeromq.pub_sink(gr.sizeof_float, fft_resolution, 'tcp://127.0.0.1:50242', 100, False, (-1), '', True)
+        self.zeromq_pub_sink_0 = zeromq.pub_sink(gr.sizeof_float, fft_resolution_default, 'tcp://127.0.0.1:50242', 100, False, (-1), '', True)
         self.qtgui_vector_sink_f_0 = qtgui.vector_sink_f(
-            fft_resolution,
+            fft_resolution_default,
             0,
             1.0,
             "x-Axis",
@@ -145,14 +129,14 @@ class SDREventDetector(gr.top_block, Qt.QWidget):
         self._qtgui_vector_sink_f_0_win = sip.wrapinstance(self.qtgui_vector_sink_f_0.qwidget(), Qt.QWidget)
         self.top_layout.addWidget(self._qtgui_vector_sink_f_0_win)
         self.logpwrfft_x_0 = logpwrfft.logpwrfft_c(
-            sample_rate=samp_rate,
-            fft_size=fft_resolution,
+            sample_rate=samp_rate_default,
+            fft_size=fft_resolution_default,
             ref_scale=1,
-            frame_rate=fft_frame_rate,
+            frame_rate=fft_frame_rate_default,
             avg_alpha=1.0,
             average=True,
             shift=True)
-        self.blocks_throttle_0 = blocks.throttle(gr.sizeof_gr_complex*1, samp_rate,True)
+        self.blocks_throttle_0 = blocks.throttle(gr.sizeof_gr_complex*1, samp_rate_default,True)
         self.blocks_file_source_0 = blocks.file_source(gr.sizeof_gr_complex*1, 'test-recording', True, 0, 0)
         self.blocks_file_source_0.set_begin_tag(pmt.PMT_NIL)
 
@@ -174,31 +158,37 @@ class SDREventDetector(gr.top_block, Qt.QWidget):
 
         event.accept()
 
-    def get_samp_rate(self):
-        return self.samp_rate
+    def get_samp_rate_default(self):
+        return self.samp_rate_default
 
-    def set_samp_rate(self, samp_rate):
-        self.samp_rate = samp_rate
-        self.blocks_throttle_0.set_sample_rate(self.samp_rate)
-        self.logpwrfft_x_0.set_sample_rate(self.samp_rate)
+    def set_samp_rate_default(self, samp_rate_default):
+        self.samp_rate_default = samp_rate_default
+        self.blocks_throttle_0.set_sample_rate(self.samp_rate_default)
+        self.logpwrfft_x_0.set_sample_rate(self.samp_rate_default)
 
-    def get_fft_resolution(self):
-        return self.fft_resolution
+    def get_gain_default(self):
+        return self.gain_default
 
-    def set_fft_resolution(self, fft_resolution):
-        self.fft_resolution = fft_resolution
+    def set_gain_default(self, gain_default):
+        self.gain_default = gain_default
 
-    def get_fft_frame_rate(self):
-        return self.fft_frame_rate
+    def get_fft_resolution_default(self):
+        return self.fft_resolution_default
 
-    def set_fft_frame_rate(self, fft_frame_rate):
-        self.fft_frame_rate = fft_frame_rate
+    def set_fft_resolution_default(self, fft_resolution_default):
+        self.fft_resolution_default = fft_resolution_default
 
-    def get_center_freq(self):
-        return self.center_freq
+    def get_fft_frame_rate_default(self):
+        return self.fft_frame_rate_default
 
-    def set_center_freq(self, center_freq):
-        self.center_freq = center_freq
+    def set_fft_frame_rate_default(self, fft_frame_rate_default):
+        self.fft_frame_rate_default = fft_frame_rate_default
+
+    def get_center_freq_default(self):
+        return self.center_freq_default
+
+    def set_center_freq_default(self, center_freq_default):
+        self.center_freq_default = center_freq_default
 
 
 
