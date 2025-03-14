@@ -39,10 +39,10 @@ try:
         fft_resolution = int(config["graph"]["fft_resolution"])
         fft_frame_rate = int(config["graph"]["fft_frame_rate"])
         
+        seconds_to_buffer = int(config["client"]["seconds_to_buffer"])
         fft_supersample = 2 ** int(config["client"]["fft_supersample"])
         trigger_gain_threshold = float(config["client"]["trigger_gain_threshold"])
         trigger_abs_threshold = float(config["client"]["trigger_abs_threshold"])
-        retrigger_seconds = int(config["client"]["retrigger_seconds"])
         
         if config.has_section("mqtt"):
             mqtt_ip_address = config["mqtt"]["mqtt_ip_address"] 
@@ -84,8 +84,6 @@ zmq_push_message_sink = zmq_push_message_sink_context.socket (zmq.PUSH)
 zmq_push_message_sink.bind (zmq_push_endpoint)
 
 fft_data_rebinned_max_history = [np.array([]) for _ in range(rebinned_fft_size)]
-last_trigger_time = []
-last_trigger_time = [time.time() for i in range(rebinned_fft_size)] 
 
 while True:
     if zmq_pub_sink.poll(10) != 0:
@@ -100,24 +98,22 @@ while True:
         end_event_power = 0
         for index,value in enumerate(fft_data_rebinned_max):
             fft_data_rebinned_max_history[index] = np.append(fft_data_rebinned_max_history[index], fft_data_rebinned_max[index])
-            if len(fft_data_rebinned_max_history[index]) == (fft_frame_rate * retrigger_seconds) + 1: 
+            if len(fft_data_rebinned_max_history[index]) == (fft_frame_rate * seconds_to_buffer) + 1: 
                 fft_data_rebinned_max_history[index] = np.delete(fft_data_rebinned_max_history[index], 0)
                 average_power_in_band = np.average(fft_data_rebinned_max_history[index])
                 if (fft_data_rebinned_max[index] > (average_power_in_band + trigger_gain_threshold)) and (fft_data_rebinned_max[index] > trigger_abs_threshold):
                     event_frequency = rebinned_frequency_values[index] + (frequency_range_per_fft_bin * fft_data_rebinned_argmax[index])
                     event_power = fft_data_rebinned_max[index]
-                    if  (time.time() - last_trigger_time[index]) > retrigger_seconds:
-                        last_trigger_time[index] = time.time()
-                        #
-                        #zmq_push_message_sink.send(pmt.serialize_str((pmt.cons(pmt.intern("freq"), pmt.to_pmt(float(tuning_frequency))))))
-                        #
-                        now = datetime.datetime.now()
-                        csv_entry="%s,%d,%d\n" % (now.strftime("%d-%m-%Y %H:%M:%S"),event_frequency, event_power)
-                        csv_file.write(csv_entry)
-                        csv_file.flush()
-                        logging.info(csv_entry)
-                        if config.has_section("mqtt"):
-                            mqtt_client.publish(mqtt_topic, csv_entry)
+                    #
+                    #zmq_push_message_sink.send(pmt.serialize_str((pmt.cons(pmt.intern("freq"), pmt.to_pmt(float(tuning_frequency))))))
+                    #
+                    now = datetime.datetime.now()
+                    csv_entry="%s,%d,%d\n" % (now.strftime("%d-%m-%Y %H:%M:%S.%f"),event_frequency, event_power)
+                    csv_file.write(csv_entry)
+                    csv_file.flush()
+                    logging.info(csv_entry)
+                    if config.has_section("mqtt"):
+                         mqtt_client.publish(mqtt_topic, csv_entry)
            
                                 
                     
