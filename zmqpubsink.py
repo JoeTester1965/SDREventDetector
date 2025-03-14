@@ -39,7 +39,7 @@ try:
         fft_resolution = int(config["graph"]["fft_resolution"])
         fft_frame_rate = int(config["graph"]["fft_frame_rate"])
         
-        fft_supersample = int(config["client"]["fft_supersample"])
+        fft_supersample = 2 ** int(config["client"]["fft_supersample"])
         trigger_gain_threshold = float(config["client"]["trigger_gain_threshold"])
         trigger_abs_threshold = float(config["client"]["trigger_abs_threshold"])
         retrigger_seconds = int(config["client"]["retrigger_seconds"])
@@ -112,7 +112,7 @@ while True:
                         #zmq_push_message_sink.send(pmt.serialize_str((pmt.cons(pmt.intern("freq"), pmt.to_pmt(float(tuning_frequency))))))
                         #
                         now = datetime.datetime.now()
-                        csv_entry="%s,%s,%d,%d\n" % (now.strftime("%Y-%m-%d %H:%M:%S"),time.time(),event_frequency, event_power)
+                        csv_entry="%s,%d,%d\n" % (now.strftime("%d-%m-%Y %H:%M:%S"),event_frequency, event_power)
                         csv_file.write(csv_entry)
                         csv_file.flush()
                         logging.info(csv_entry)
