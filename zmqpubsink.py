@@ -31,13 +31,12 @@ config = configparser.ConfigParser()
 try:
     with open(sys.argv[1]) as f:
         config.read_file(f)
-                                                                #for soapy_cmd : https://wiki.gnuradio.org/index.php/Soapy
-        centre_freq = int(config["soapy"]["centre_freq"])       #doube
-        gain = int(config["soapy"]["gain"])                     #float
-        sample_rate = int(config["soapy"]["sample_rate"])       #double
         
-        fft_resolution = int(config["graph"]["fft_resolution"])
-        fft_frame_rate = int(config["graph"]["fft_frame_rate"])
+        centre_freq = int(config["grc"]["centre_freq"])       
+        gain = int(config["grc"]["gain"])                     
+        sample_rate = int(config["grc"]["sample_rate"])       
+        fft_resolution = int(config["grc"]["fft_resolution"])
+        fft_frame_rate = int(config["grc"]["fft_frame_rate"])
         
         seconds_to_buffer = int(config["client"]["seconds_to_buffer"])
         fft_supersample = 2 ** int(config["client"]["fft_supersample"])
@@ -87,6 +86,17 @@ zmq_push_message_sink_context = zmq.Context()
 zmq_push_message_sink = zmq_push_message_sink_context.socket (zmq.PUSH)
 zmq_push_message_sink.bind (zmq_push_endpoint)
 
+
+#https://www.gnuradio.org/doc/sphinx-3.7.0/pmt/dictionary.html
+#https://wiki.gnuradio.org/index.php/Message_Passing
+#https://www.gnuradio.org/doc/sphinx-3.7.0/pmt/index.html
+#https://lists.nongnu.org/archive/html/discuss-gnuradio/2016-12/msg00108.html
+
+# cmd port, want dict gain = float.
+pmt_dict = pmt.make_dict()
+pmt.dict_add(pmt_dict, pmt.intern('gain'), pmt.to_pmt(10))
+zmq_push_message_sink.send(pmt.serialize_str((pmt.cons(pmt.intern("cmd"), pmt_dict))))         
+
 fft_data_rebinned_max_history = [np.array([]) for _ in range(rebinned_fft_size)]
 
 while True:
@@ -111,9 +121,6 @@ while True:
                 if (fft_data_rebinned_max[index] > (average_power_in_band + trigger_gain_threshold)):
                     event_frequency = rebinned_frequency_values[index]
                     event_power = fft_data_rebinned_max[index]
-                    #
-                    #zmq_push_message_sink.send(pmt.serialize_str((pmt.cons(pmt.intern("freq"), pmt.to_pmt(float(tuning_frequency))))))
-                    #
                     now = datetime.datetime.now()
                     csv_entry="%s,%d,%d\n" % (now.strftime("%d-%m-%Y %H:%M:%S.%f"),event_frequency, event_power)
                     csv_file.write(csv_entry)

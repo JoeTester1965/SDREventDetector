@@ -1,3 +1,6 @@
+CONFIG.
+
+Just do configure script to edit flow graph from config file!
 
 1. Is it possible for zmqpubsink.py to change cmd hooks and Variable Config dynamically?
 
