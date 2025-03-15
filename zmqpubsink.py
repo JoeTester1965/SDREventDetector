@@ -42,7 +42,11 @@ try:
         seconds_to_buffer = int(config["client"]["seconds_to_buffer"])
         fft_supersample = 2 ** int(config["client"]["fft_supersample"])
         trigger_gain_threshold = float(config["client"]["trigger_gain_threshold"])
-        trigger_abs_threshold = float(config["client"]["trigger_abs_threshold"])
+
+        if fft_supersample >= fft_resolution:
+            logging.critical("fft_supersample needs to be less than %d as fft_resolution is %d. Why not try 1 instead and work up to see what works best for you?",
+                                    math.log2(fft_resolution), fft_resolution)
+            sys.exit()
         
         if config.has_section("mqtt"):
             mqtt_ip_address = config["mqtt"]["mqtt_ip_address"] 
@@ -86,6 +90,9 @@ zmq_push_message_sink.bind (zmq_push_endpoint)
 fft_data_rebinned_max_history = [np.array([]) for _ in range(rebinned_fft_size)]
 
 while True:
+
+    start_time = time.time()
+
     if zmq_pub_sink.poll(10) != 0:
         msg = zmq_pub_sink.recv()
         message_size = len(msg)
@@ -101,8 +108,8 @@ while True:
             if len(fft_data_rebinned_max_history[index]) == (fft_frame_rate * seconds_to_buffer) + 1: 
                 fft_data_rebinned_max_history[index] = np.delete(fft_data_rebinned_max_history[index], 0)
                 average_power_in_band = np.average(fft_data_rebinned_max_history[index])
-                if (fft_data_rebinned_max[index] > (average_power_in_band + trigger_gain_threshold)) and (fft_data_rebinned_max[index] > trigger_abs_threshold):
-                    event_frequency = rebinned_frequency_values[index] + (frequency_range_per_fft_bin * fft_data_rebinned_argmax[index])
+                if (fft_data_rebinned_max[index] > (average_power_in_band + trigger_gain_threshold)):
+                    event_frequency = rebinned_frequency_values[index]
                     event_power = fft_data_rebinned_max[index]
                     #
                     #zmq_push_message_sink.send(pmt.serialize_str((pmt.cons(pmt.intern("freq"), pmt.to_pmt(float(tuning_frequency))))))
@@ -115,7 +122,11 @@ while True:
                     if config.has_section("mqtt"):
                          mqtt_client.publish(mqtt_topic, csv_entry)
            
-                                
+    end_time = time.time()
+    delta_time = end_time - start_time
+    delta_time_target = 1.0/float(fft_frame_rate)
+    if(delta_time > delta_time_target):
+       logging.warning("Not real time: execution in %.3f not %.3f seconds, reduce fft_resolution and/or fft_frame_rate", delta_time, delta_time_target)                            
                     
 
         
