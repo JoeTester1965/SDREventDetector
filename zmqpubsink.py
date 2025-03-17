@@ -9,9 +9,7 @@ import time
 import paho.mqtt.client as mqtt
 import datetime
 import pmt
-
-zmq_endpoint="tcp://127.0.0.1:50242"
-zmq_push_endpoint="tcp://127.0.0.1:50241"
+from xmlrpc.client import ServerProxy
 
 logging.basicConfig(
     level=logging.INFO,
@@ -37,6 +35,11 @@ try:
         sample_rate = int(config["grc"]["sample_rate"])       
         fft_resolution = int(config["grc"]["fft_resolution"])
         fft_frame_rate = int(config["grc"]["fft_frame_rate"])
+
+        xml_rpc_port = config["rpc-network-config"]["xml_rpc_port"]
+        xml_rpc_server = config["rpc-network-config"]["xml_rpc_server"]
+        xml_rpc_address = "http://" + xml_rpc_server + ":" + xml_rpc_port
+        zmq_address = config["zmq-network-config"]["zmq_address"]     
         
         seconds_to_buffer = int(config["client"]["seconds_to_buffer"])
         fft_supersample = 2 ** int(config["client"]["fft_supersample"])
@@ -79,23 +82,18 @@ for index in range(0, rebinned_fft_size):
 
 zmq_pub_sink_context = zmq.Context()
 zmq_pub_sink = zmq_pub_sink_context.socket(zmq.SUB)
-zmq_pub_sink.connect(zmq_endpoint)
+zmq_pub_sink.connect(zmq_address)
 zmq_pub_sink.setsockopt(zmq.SUBSCRIBE, b'')
 
-zmq_push_message_sink_context = zmq.Context()
-zmq_push_message_sink = zmq_push_message_sink_context.socket (zmq.PUSH)
-zmq_push_message_sink.bind (zmq_push_endpoint)
+xmlrpc_endpoint = ServerProxy(xml_rpc_address)
 
-
-#https://www.gnuradio.org/doc/sphinx-3.7.0/pmt/dictionary.html
-#https://wiki.gnuradio.org/index.php/Message_Passing
-#https://www.gnuradio.org/doc/sphinx-3.7.0/pmt/index.html
-#https://lists.nongnu.org/archive/html/discuss-gnuradio/2016-12/msg00108.html
-
-# cmd port, want dict gain = float.
-pmt_dict = pmt.make_dict()
-pmt.dict_add(pmt_dict, pmt.intern('gain'), pmt.to_pmt(10))
-zmq_push_message_sink.send(pmt.serialize_str((pmt.cons(pmt.intern("cmd"), pmt_dict))))         
+#   Can then use below to retune and reconfigure radio on the fly
+#   
+#   xmlrpc_endpoint.set_center_freq(centre_freq)
+#   xmlrpc_endpoint.set_gain(gain)
+#   xmlrpc_endpoint.set_sample_rate(sample_rate) 
+#   xmlrpc_endpoint.set_fft_resolution(fft_resolution) 
+#   xmlrpc_endpoint.set_fft_frame_rate(fft_frame_rate) 
 
 fft_data_rebinned_max_history = [np.array([]) for _ in range(rebinned_fft_size)]
 

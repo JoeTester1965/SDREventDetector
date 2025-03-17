@@ -10,23 +10,7 @@
 # Copyright: MIT License
 # GNU Radio version: 3.10.5.1
 
-from packaging.version import Version as StrictVersion
-
-if __name__ == '__main__':
-    import ctypes
-    import sys
-    if sys.platform.startswith('linux'):
-        try:
-            x11 = ctypes.cdll.LoadLibrary('libX11.so')
-            x11.XInitThreads()
-        except:
-            print("Warning: failed to XInitThreads()")
-
-from PyQt5 import Qt
-from gnuradio import qtgui
-import sip
 from gnuradio import blocks
-import pmt
 from gnuradio import gr
 from gnuradio.filter import firdes
 from gnuradio.fft import window
@@ -35,191 +19,184 @@ import signal
 from argparse import ArgumentParser
 from gnuradio.eng_arg import eng_float, intx
 from gnuradio import eng_notation
+from gnuradio import soapy
 from gnuradio import zeromq
 from gnuradio.fft import logpwrfft
+from xmlrpc.server import SimpleXMLRPCServer
+import threading
+import configparser
 
 
 
-from gnuradio import qtgui
 
-class SDREventDetector(gr.top_block, Qt.QWidget):
+class SDREventDetector(gr.top_block):
 
     def __init__(self):
         gr.top_block.__init__(self, "SDREventDetector-grc", catch_exceptions=True)
-        Qt.QWidget.__init__(self)
-        self.setWindowTitle("SDREventDetector-grc")
-        qtgui.util.check_set_qss()
-        try:
-            self.setWindowIcon(Qt.QIcon.fromTheme('gnuradio-grc'))
-        except:
-            pass
-        self.top_scroll_layout = Qt.QVBoxLayout()
-        self.setLayout(self.top_scroll_layout)
-        self.top_scroll = Qt.QScrollArea()
-        self.top_scroll.setFrameStyle(Qt.QFrame.NoFrame)
-        self.top_scroll_layout.addWidget(self.top_scroll)
-        self.top_scroll.setWidgetResizable(True)
-        self.top_widget = Qt.QWidget()
-        self.top_scroll.setWidget(self.top_widget)
-        self.top_layout = Qt.QVBoxLayout(self.top_widget)
-        self.top_grid_layout = Qt.QGridLayout()
-        self.top_layout.addLayout(self.top_grid_layout)
-
-        self.settings = Qt.QSettings("GNU Radio", "SDREventDetector")
-
-        try:
-            if StrictVersion(Qt.qVersion()) < StrictVersion("5.0.0"):
-                self.restoreGeometry(self.settings.value("geometry").toByteArray())
-            else:
-                self.restoreGeometry(self.settings.value("geometry"))
-        except:
-            pass
 
         ##################################################
         # Variables
         ##################################################
-        self.samp_rate_default = samp_rate_default = 2048000
-        self.gain_default = gain_default = 20
-        self.fft_resolution_default = fft_resolution_default = 1024
-        self.fft_frame_rate_default = fft_frame_rate_default = 20
-        self.center_freq_default = center_freq_default = 434000000
+        self._zmq_network_config_config = configparser.ConfigParser()
+        self._zmq_network_config_config.read('SDREventDetector.ini')
+        try: zmq_network_config = self._zmq_network_config_config.get('zmq-network-config', 'zmq_address')
+        except: zmq_network_config = 'tcp://127.0.0.1:50242'
+        self.zmq_network_config = zmq_network_config
+        self._xml_rpc_server_config = configparser.ConfigParser()
+        self._xml_rpc_server_config.read('SDREventDetector.ini')
+        try: xml_rpc_server = self._xml_rpc_server_config.get('rpc-network-config', xml_rpc_server)
+        except: xml_rpc_server = "127.0.0.1"
+        self.xml_rpc_server = xml_rpc_server
+        self._xml_rpc_port_config = configparser.ConfigParser()
+        self._xml_rpc_port_config.read('SDREventDetector.ini')
+        try: xml_rpc_port = self._xml_rpc_port_config.getint('rpc-network-config', 'xml_rpc_port')
+        except: xml_rpc_port = 50249
+        self.xml_rpc_port = xml_rpc_port
+        self._sample_rate_config = configparser.ConfigParser()
+        self._sample_rate_config.read('SDREventDetector.ini')
+        try: sample_rate = self._sample_rate_config.getint('grc', 'sample_rate')
+        except: sample_rate = 2048000
+        self.sample_rate = sample_rate
+        self._gain_config = configparser.ConfigParser()
+        self._gain_config.read('SDREventDetector.ini')
+        try: gain = self._gain_config.getint('grc', 'gain')
+        except: gain = 10
+        self.gain = gain
+        self._fft_resolution_config = configparser.ConfigParser()
+        self._fft_resolution_config.read('SDREventDetector.ini')
+        try: fft_resolution = self._fft_resolution_config.getint('grc', 'fft_resolution')
+        except: fft_resolution = 20
+        self.fft_resolution = fft_resolution
+        self._fft_frame_rate_config = configparser.ConfigParser()
+        self._fft_frame_rate_config.read('SDREventDetector.ini')
+        try: fft_frame_rate = self._fft_frame_rate_config.getint('grc', 'fft_frame_rate')
+        except: fft_frame_rate = 1024
+        self.fft_frame_rate = fft_frame_rate
+        self._center_freq_config = configparser.ConfigParser()
+        self._center_freq_config.read('SDREventDetector.ini')
+        try: center_freq = self._center_freq_config.getint('grc', 'center_freq')
+        except: center_freq = 434000000
+        self.center_freq = center_freq
 
         ##################################################
         # Blocks
         ##################################################
 
-        self.zeromq_pub_sink_0 = zeromq.pub_sink(gr.sizeof_float, fft_resolution_default, 'tcp://127.0.0.1:50242', 100, False, (-1), '', True)
-        self.qtgui_vector_sink_f_0 = qtgui.vector_sink_f(
-            fft_resolution_default,
-            0,
-            1.0,
-            "x-Axis",
-            "y-Axis",
-            "",
-            1, # Number of inputs
-            None # parent
-        )
-        self.qtgui_vector_sink_f_0.set_update_time(0.05)
-        self.qtgui_vector_sink_f_0.set_y_axis((-80), (-0))
-        self.qtgui_vector_sink_f_0.enable_autoscale(False)
-        self.qtgui_vector_sink_f_0.enable_grid(False)
-        self.qtgui_vector_sink_f_0.set_x_axis_units("")
-        self.qtgui_vector_sink_f_0.set_y_axis_units("")
-        self.qtgui_vector_sink_f_0.set_ref_level((-80))
+        self.zeromq_pub_sink_0 = zeromq.pub_sink(gr.sizeof_float, fft_resolution, zmq_network_config, 100, False, (-1), '', True)
+        self.xmlrpc_server_0 = SimpleXMLRPCServer((xml_rpc_server, xml_rpc_port), allow_none=True)
+        self.xmlrpc_server_0.register_instance(self)
+        self.xmlrpc_server_0_thread = threading.Thread(target=self.xmlrpc_server_0.serve_forever)
+        self.xmlrpc_server_0_thread.daemon = True
+        self.xmlrpc_server_0_thread.start()
+        self.soapy_rtlsdr_source_0 = None
+        dev = 'driver=rtlsdr'
+        stream_args = ''
+        tune_args = ['']
+        settings = ['']
 
-
-        labels = ['', '', '', '', '',
-            '', '', '', '', '']
-        widths = [1, 1, 1, 1, 1,
-            1, 1, 1, 1, 1]
-        colors = ["blue", "red", "green", "black", "cyan",
-            "magenta", "yellow", "dark red", "dark green", "dark blue"]
-        alphas = [1.0, 1.0, 1.0, 1.0, 1.0,
-            1.0, 1.0, 1.0, 1.0, 1.0]
-
-        for i in range(1):
-            if len(labels[i]) == 0:
-                self.qtgui_vector_sink_f_0.set_line_label(i, "Data {0}".format(i))
-            else:
-                self.qtgui_vector_sink_f_0.set_line_label(i, labels[i])
-            self.qtgui_vector_sink_f_0.set_line_width(i, widths[i])
-            self.qtgui_vector_sink_f_0.set_line_color(i, colors[i])
-            self.qtgui_vector_sink_f_0.set_line_alpha(i, alphas[i])
-
-        self._qtgui_vector_sink_f_0_win = sip.wrapinstance(self.qtgui_vector_sink_f_0.qwidget(), Qt.QWidget)
-        self.top_layout.addWidget(self._qtgui_vector_sink_f_0_win)
+        self.soapy_rtlsdr_source_0 = soapy.source(dev, "fc32", 1, '',
+                                  stream_args, tune_args, settings)
+        self.soapy_rtlsdr_source_0.set_sample_rate(0, sample_rate)
+        self.soapy_rtlsdr_source_0.set_gain_mode(0, False)
+        self.soapy_rtlsdr_source_0.set_frequency(0, center_freq)
+        self.soapy_rtlsdr_source_0.set_frequency_correction(0, 0)
+        self.soapy_rtlsdr_source_0.set_gain(0, 'TUNER', gain)
         self.logpwrfft_x_0 = logpwrfft.logpwrfft_c(
-            sample_rate=samp_rate_default,
-            fft_size=fft_resolution_default,
+            sample_rate=sample_rate,
+            fft_size=fft_resolution,
             ref_scale=1,
-            frame_rate=fft_frame_rate_default,
+            frame_rate=fft_frame_rate,
             avg_alpha=1.0,
             average=True,
             shift=True)
-        self.blocks_throttle_0 = blocks.throttle(gr.sizeof_gr_complex*1, samp_rate_default,True)
-        self.blocks_file_source_0 = blocks.file_source(gr.sizeof_gr_complex*1, 'test-recording', True, 0, 0)
-        self.blocks_file_source_0.set_begin_tag(pmt.PMT_NIL)
+        self.blocks_correctiq_0 = blocks.correctiq()
 
 
         ##################################################
         # Connections
         ##################################################
-        self.connect((self.blocks_file_source_0, 0), (self.blocks_throttle_0, 0))
-        self.connect((self.blocks_throttle_0, 0), (self.logpwrfft_x_0, 0))
-        self.connect((self.logpwrfft_x_0, 0), (self.qtgui_vector_sink_f_0, 0))
+        self.connect((self.blocks_correctiq_0, 0), (self.logpwrfft_x_0, 0))
         self.connect((self.logpwrfft_x_0, 0), (self.zeromq_pub_sink_0, 0))
+        self.connect((self.soapy_rtlsdr_source_0, 0), (self.blocks_correctiq_0, 0))
 
 
-    def closeEvent(self, event):
-        self.settings = Qt.QSettings("GNU Radio", "SDREventDetector")
-        self.settings.setValue("geometry", self.saveGeometry())
-        self.stop()
-        self.wait()
+    def get_zmq_network_config(self):
+        return self.zmq_network_config
 
-        event.accept()
+    def set_zmq_network_config(self, zmq_network_config):
+        self.zmq_network_config = zmq_network_config
 
-    def get_samp_rate_default(self):
-        return self.samp_rate_default
+    def get_xml_rpc_server(self):
+        return self.xml_rpc_server
 
-    def set_samp_rate_default(self, samp_rate_default):
-        self.samp_rate_default = samp_rate_default
-        self.blocks_throttle_0.set_sample_rate(self.samp_rate_default)
-        self.logpwrfft_x_0.set_sample_rate(self.samp_rate_default)
+    def set_xml_rpc_server(self, xml_rpc_server):
+        self.xml_rpc_server = xml_rpc_server
+        self._xml_rpc_server_config = configparser.ConfigParser()
+        self._xml_rpc_server_config.read('SDREventDetector.ini')
+        if not self._xml_rpc_server_config.has_section('rpc-network-config'):
+        	self._xml_rpc_server_config.add_section('rpc-network-config')
+        self._xml_rpc_server_config.set('rpc-network-config', self.xml_rpc_server, str(None))
+        self._xml_rpc_server_config.write(open('SDREventDetector.ini', 'w'))
 
-    def get_gain_default(self):
-        return self.gain_default
+    def get_xml_rpc_port(self):
+        return self.xml_rpc_port
 
-    def set_gain_default(self, gain_default):
-        self.gain_default = gain_default
+    def set_xml_rpc_port(self, xml_rpc_port):
+        self.xml_rpc_port = xml_rpc_port
 
-    def get_fft_resolution_default(self):
-        return self.fft_resolution_default
+    def get_sample_rate(self):
+        return self.sample_rate
 
-    def set_fft_resolution_default(self, fft_resolution_default):
-        self.fft_resolution_default = fft_resolution_default
+    def set_sample_rate(self, sample_rate):
+        self.sample_rate = sample_rate
+        self.logpwrfft_x_0.set_sample_rate(self.sample_rate)
+        self.soapy_rtlsdr_source_0.set_sample_rate(0, self.sample_rate)
 
-    def get_fft_frame_rate_default(self):
-        return self.fft_frame_rate_default
+    def get_gain(self):
+        return self.gain
 
-    def set_fft_frame_rate_default(self, fft_frame_rate_default):
-        self.fft_frame_rate_default = fft_frame_rate_default
+    def set_gain(self, gain):
+        self.gain = gain
+        self.soapy_rtlsdr_source_0.set_gain(0, 'TUNER', self.gain)
 
-    def get_center_freq_default(self):
-        return self.center_freq_default
+    def get_fft_resolution(self):
+        return self.fft_resolution
 
-    def set_center_freq_default(self, center_freq_default):
-        self.center_freq_default = center_freq_default
+    def set_fft_resolution(self, fft_resolution):
+        self.fft_resolution = fft_resolution
+
+    def get_fft_frame_rate(self):
+        return self.fft_frame_rate
+
+    def set_fft_frame_rate(self, fft_frame_rate):
+        self.fft_frame_rate = fft_frame_rate
+
+    def get_center_freq(self):
+        return self.center_freq
+
+    def set_center_freq(self, center_freq):
+        self.center_freq = center_freq
+        self.soapy_rtlsdr_source_0.set_frequency(0, self.center_freq)
 
 
 
 
 def main(top_block_cls=SDREventDetector, options=None):
-
-    if StrictVersion("4.5.0") <= StrictVersion(Qt.qVersion()) < StrictVersion("5.0.0"):
-        style = gr.prefs().get_string('qtgui', 'style', 'raster')
-        Qt.QApplication.setGraphicsSystem(style)
-    qapp = Qt.QApplication(sys.argv)
-
     tb = top_block_cls()
-
-    tb.start()
-
-    tb.show()
 
     def sig_handler(sig=None, frame=None):
         tb.stop()
         tb.wait()
 
-        Qt.QApplication.quit()
+        sys.exit(0)
 
     signal.signal(signal.SIGINT, sig_handler)
     signal.signal(signal.SIGTERM, sig_handler)
 
-    timer = Qt.QTimer()
-    timer.start(500)
-    timer.timeout.connect(lambda: None)
+    tb.start()
 
-    qapp.exec_()
+    tb.wait()
+
 
 if __name__ == '__main__':
     main()

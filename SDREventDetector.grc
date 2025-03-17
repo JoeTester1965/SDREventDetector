@@ -9,7 +9,7 @@ options:
     description: ''
     gen_cmake: 'On'
     gen_linking: dynamic
-    generate_options: qt_gui
+    generate_options: no_gui
     hier_block_src_path: '.:'
     id: SDREventDetector
     max_nouts: '0'
@@ -28,69 +28,145 @@ options:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [88, 12.0]
+    coordinate: [440, 132.0]
     rotation: 0
     state: enabled
 
 blocks:
-- name: center_freq_default
-  id: variable
+- name: center_freq
+  id: variable_config
   parameters:
     comment: ''
+    config_file: SDREventDetector.ini
+    option: center_freq
+    section: grc
+    type: int
     value: '434000000'
+    writeback: None
   states:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [272, 12.0]
+    coordinate: [128, 284.0]
     rotation: 0
     state: true
-- name: fft_frame_rate_default
-  id: variable
+- name: fft_frame_rate
+  id: variable_config
   parameters:
     comment: ''
-    value: '20'
-  states:
-    bus_sink: false
-    bus_source: false
-    bus_structure: null
-    coordinate: [688, 12.0]
-    rotation: 0
-    state: true
-- name: fft_resolution_default
-  id: variable
-  parameters:
-    comment: ''
+    config_file: SDREventDetector.ini
+    option: fft_frame_rate
+    section: grc
+    type: int
     value: '1024'
+    writeback: None
   states:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [408, 12.0]
+    coordinate: [736, 180.0]
     rotation: 0
     state: true
-- name: gain_default
-  id: variable
+- name: fft_resolution
+  id: variable_config
   parameters:
     comment: ''
+    config_file: SDREventDetector.ini
+    option: fft_resolution
+    section: grc
+    type: int
     value: '20'
+    writeback: None
   states:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [272, 76.0]
+    coordinate: [904, 180.0]
     rotation: 0
     state: true
-- name: samp_rate_default
-  id: variable
+- name: gain
+  id: variable_config
   parameters:
     comment: ''
-    value: '2048000'
+    config_file: SDREventDetector.ini
+    option: gain
+    section: grc
+    type: int
+    value: '10'
+    writeback: None
   states:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [552, 12.0]
+    coordinate: [128, 140.0]
+    rotation: 0
+    state: true
+- name: sample_rate
+  id: variable_config
+  parameters:
+    comment: ''
+    config_file: SDREventDetector.ini
+    option: sample_rate
+    section: grc
+    type: int
+    value: '2048000'
+    writeback: None
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [128, 428.0]
+    rotation: 0
+    state: true
+- name: xml_rpc_port
+  id: variable_config
+  parameters:
+    comment: ''
+    config_file: SDREventDetector.ini
+    option: xml_rpc_port
+    section: rpc-network-config
+    type: int
+    value: '50249'
+    writeback: None
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [368, 324.0]
+    rotation: 0
+    state: true
+- name: xml_rpc_server
+  id: variable_config
+  parameters:
+    comment: ''
+    config_file: SDREventDetector.ini
+    option: xml_rpc_server
+    section: rpc-network-config
+    type: string
+    value: '"127.0.0.1"'
+    writeback: None
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [544, 324.0]
+    rotation: 0
+    state: true
+- name: zmq_network_config
+  id: variable_config
+  parameters:
+    comment: ''
+    config_file: SDREventDetector.ini
+    option: zmq_address
+    section: zmq-network-config
+    type: string
+    value: tcp://127.0.0.1:50242
+    writeback: None
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [1136, 164.0]
     rotation: 0
     state: true
 - name: blocks_correctiq_0
@@ -105,66 +181,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [600, 184.0]
-    rotation: 0
-    state: disabled
-- name: blocks_file_sink_0
-  id: blocks_file_sink
-  parameters:
-    affinity: ''
-    alias: ''
-    append: 'False'
-    comment: ''
-    file: test-recording
-    type: complex
-    unbuffered: 'False'
-    vlen: '1'
-  states:
-    bus_sink: false
-    bus_source: false
-    bus_structure: null
-    coordinate: [104, 340.0]
-    rotation: 0
-    state: disabled
-- name: blocks_file_source_0
-  id: blocks_file_source
-  parameters:
-    affinity: ''
-    alias: ''
-    begin_tag: pmt.PMT_NIL
-    comment: ''
-    file: test-recording
-    length: '0'
-    maxoutbuf: '0'
-    minoutbuf: '0'
-    offset: '0'
-    repeat: 'True'
-    type: complex
-    vlen: '1'
-  states:
-    bus_sink: false
-    bus_source: false
-    bus_structure: null
-    coordinate: [336, 324.0]
-    rotation: 0
-    state: enabled
-- name: blocks_throttle_0
-  id: blocks_throttle
-  parameters:
-    affinity: ''
-    alias: ''
-    comment: ''
-    ignoretag: 'True'
-    maxoutbuf: '0'
-    minoutbuf: '0'
-    samples_per_second: samp_rate_default
-    type: complex
-    vlen: '1'
-  states:
-    bus_sink: false
-    bus_source: false
-    bus_structure: null
-    coordinate: [528, 356.0]
+    coordinate: [472, 88.0]
     rotation: 0
     state: enabled
 - name: logpwrfft_x_0
@@ -175,171 +192,19 @@ blocks:
     average: 'True'
     avg_alpha: '1.0'
     comment: ''
-    fft_size: fft_resolution_default
-    frame_rate: fft_frame_rate_default
+    fft_size: fft_resolution
+    frame_rate: fft_frame_rate
     maxoutbuf: '0'
     minoutbuf: '0'
     ref_scale: '1'
-    sample_rate: samp_rate_default
+    sample_rate: sample_rate
     shift: 'True'
     type: complex
   states:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [848, 132.0]
-    rotation: 0
-    state: enabled
-- name: note_0
-  id: note
-  parameters:
-    alias: ''
-    comment: ''
-    note: see zmqpubsink.py
-  states:
-    bus_sink: false
-    bus_source: false
-    bus_structure: null
-    coordinate: [1096, 252.0]
-    rotation: 0
-    state: true
-- name: note_0_0
-  id: note
-  parameters:
-    alias: ''
-    comment: ''
-    note: see zmqpubsink.py
-  states:
-    bus_sink: false
-    bus_source: false
-    bus_structure: null
-    coordinate: [104, 228.0]
-    rotation: 0
-    state: enabled
-- name: note_0_1
-  id: note
-  parameters:
-    alias: ''
-    comment: ''
-    note: 'enable if needed '
-  states:
-    bus_sink: false
-    bus_source: false
-    bus_structure: null
-    coordinate: [104, 412.0]
-    rotation: 0
-    state: true
-- name: note_0_1_0
-  id: note
-  parameters:
-    alias: ''
-    comment: ''
-    note: enable if needed
-  states:
-    bus_sink: false
-    bus_source: false
-    bus_structure: null
-    coordinate: [328, 428.0]
-    rotation: 0
-    state: true
-- name: note_0_1_0_0
-  id: note
-  parameters:
-    alias: ''
-    comment: ''
-    note: enable if needed
-  states:
-    bus_sink: false
-    bus_source: false
-    bus_structure: null
-    coordinate: [1112, 412.0]
-    rotation: 0
-    state: enabled
-- name: note_0_1_0_0_0
-  id: note
-  parameters:
-    alias: ''
-    comment: ''
-    note: QT GUI as needed
-  states:
-    bus_sink: false
-    bus_source: false
-    bus_structure: null
-    coordinate: [96, 116.0]
-    rotation: 0
-    state: true
-- name: qtgui_vector_sink_f_0
-  id: qtgui_vector_sink_f
-  parameters:
-    affinity: ''
-    alias: ''
-    alpha1: '1.0'
-    alpha10: '1.0'
-    alpha2: '1.0'
-    alpha3: '1.0'
-    alpha4: '1.0'
-    alpha5: '1.0'
-    alpha6: '1.0'
-    alpha7: '1.0'
-    alpha8: '1.0'
-    alpha9: '1.0'
-    autoscale: 'False'
-    average: '1.0'
-    color1: '"blue"'
-    color10: '"dark blue"'
-    color2: '"red"'
-    color3: '"green"'
-    color4: '"black"'
-    color5: '"cyan"'
-    color6: '"magenta"'
-    color7: '"yellow"'
-    color8: '"dark red"'
-    color9: '"dark green"'
-    comment: ''
-    grid: 'False'
-    gui_hint: ''
-    label1: ''
-    label10: ''
-    label2: ''
-    label3: ''
-    label4: ''
-    label5: ''
-    label6: ''
-    label7: ''
-    label8: ''
-    label9: ''
-    legend: 'True'
-    maxoutbuf: '0'
-    minoutbuf: '0'
-    name: '""'
-    nconnections: '1'
-    ref_level: '-80'
-    showports: 'False'
-    update_time: '0.05'
-    vlen: fft_resolution_default
-    width1: '1'
-    width10: '1'
-    width2: '1'
-    width3: '1'
-    width4: '1'
-    width5: '1'
-    width6: '1'
-    width7: '1'
-    width8: '1'
-    width9: '1'
-    x_axis_label: '"x-Axis"'
-    x_start: '0'
-    x_step: '1.0'
-    x_units: '""'
-    y_axis_label: '"y-Axis"'
-    y_units: '""'
-    ymax: '-0'
-    ymin: '-80'
-  states:
-    bus_sink: false
-    bus_source: false
-    bus_structure: null
-    coordinate: [1112, 324.0]
+    coordinate: [824, 36.0]
     rotation: 0
     state: enabled
 - name: soapy_rtlsdr_source_0
@@ -348,26 +213,40 @@ blocks:
     affinity: ''
     agc: 'False'
     alias: ''
-    center_freq: center_freq_default
+    center_freq: center_freq
     comment: ''
     dev_args: ''
     freq_correction: '0'
-    gain: gain_default
+    gain: gain
     maxoutbuf: '0'
     minoutbuf: '0'
-    samp_rate: samp_rate_default
+    samp_rate: sample_rate
     type: fc32
   states:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [336, 172.0]
+    coordinate: [128, 76.0]
     rotation: 0
-    state: disabled
+    state: enabled
+- name: xmlrpc_server_0
+  id: xmlrpc_server
+  parameters:
+    addr: xml_rpc_server
+    alias: ''
+    comment: ''
+    port: xml_rpc_port
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [472, 260.0]
+    rotation: 0
+    state: true
 - name: zeromq_pub_sink_0
   id: zeromq_pub_sink
   parameters:
-    address: tcp://127.0.0.1:50242
+    address: zmq_network_config
     affinity: ''
     alias: ''
     comment: ''
@@ -377,42 +256,19 @@ blocks:
     pass_tags: 'False'
     timeout: '100'
     type: float
-    vlen: fft_resolution_default
+    vlen: fft_resolution
   states:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [1088, 148.0]
+    coordinate: [1136, 52.0]
     rotation: 0
     state: enabled
-- name: zeromq_pull_msg_source_0
-  id: zeromq_pull_msg_source
-  parameters:
-    address: tcp://127.0.0.1:50241
-    affinity: ''
-    alias: ''
-    bind: 'False'
-    comment: ''
-    maxoutbuf: '0'
-    minoutbuf: '0'
-    timeout: '100'
-  states:
-    bus_sink: false
-    bus_source: false
-    bus_structure: null
-    coordinate: [88, 172.0]
-    rotation: 0
-    state: disabled
 
 connections:
-- [blocks_correctiq_0, '0', blocks_file_sink_0, '0']
 - [blocks_correctiq_0, '0', logpwrfft_x_0, '0']
-- [blocks_file_source_0, '0', blocks_throttle_0, '0']
-- [blocks_throttle_0, '0', logpwrfft_x_0, '0']
-- [logpwrfft_x_0, '0', qtgui_vector_sink_f_0, '0']
 - [logpwrfft_x_0, '0', zeromq_pub_sink_0, '0']
 - [soapy_rtlsdr_source_0, '0', blocks_correctiq_0, '0']
-- [zeromq_pull_msg_source_0, out, soapy_rtlsdr_source_0, cmd]
 
 metadata:
   file_format: 1

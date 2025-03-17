@@ -29,11 +29,12 @@ sudo apt-get install rtl-sdr
 
 # Design
 
-![GRC sketch](./sketch.png)
+Used gnuradio companion to create a simple flowgraph that allows fft output from the radio to be configured and consumed by a seperate python program.
 
-This sketch (which you will need to edit for your specific radio front end) uses an assistant python program called [zmqpubsink.py](./zmqpubsink.py) which looks for events as defined by the [config file](SDREventDetector.ini) and then:
+![GRC sketch](./flowgraph.jpg)
 
-- Sends out frequency shifted audio to a remote location.
+The python program [zmqpubsink.py](.\zmqpubsink.py) produces events from this as defined by your [configuraion file](SDREventDetector.ini):
+
 - Creates a csv file of events for further analysis and visualisation.
 - Optionally sends events to your messaging server.
 
@@ -74,17 +75,19 @@ bash stop.sh
 
 A real-time csv file is created with event information:
 
-***timestamp,timestamp-utc,start_freq,start_power,end_freq,end_power,number_of_bins_threshold_exceeded***
+***timestamp,event_frequency,,event_power***
 
 
 ```console
 pi@ShedPi:~/Documents/SDREventDetector $ tail -f SDREventDetector.csv 
-2024-07-11 21:30:23,1720729823.81406,51592,-60,55732,-68,2
-2024-07-11 21:30:28,1720729828.13749,55010,-60,75000,-73,4
-2024-07-11 21:30:37,1720729837.46326,51836,-53,55000,-62,2
-2024-07-11 21:32:28,1720729948.55296,53301,-51,97441,-74,4
-2024-07-11 21:32:31,1720729951.10158,60615,-64,75977,-65,3
-2024-07-11 21:32:38,1720729958.09749,51348,-41,95732,-68,6
+17-03-2025 16:18:58.863218,433136000,-41
+17-03-2025 16:18:58.864690,433200000,-40
+17-03-2025 16:18:58.866263,433456000,-38
+17-03-2025 16:18:58.867525,433648000,-38
+17-03-2025 16:18:58.868460,433712000,-40
+17-03-2025 16:18:58.869379,433776000,-39
+17-03-2025 16:18:58.871553,434864000,-43
+17-03-2025 16:18:58.873869,433008000,-43
 ```
 
 # Configuration
