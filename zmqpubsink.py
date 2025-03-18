@@ -68,8 +68,7 @@ frequency_range_per_fft_bin = int((sample_rate / 2) / (fft_resolution / 2))
 
 bin_frequency_values=[]
 for index in range(0, fft_resolution):
-    bin_frequency_values.append(int((centre_freq - (int(sample_rate/2))) + ((index + 1) * frequency_range_per_fft_bin * fft_resolution) - 
-                                         ((frequency_range_per_fft_bin * fft_resolution)/ 2)))
+    bin_frequency_values.append(centre_freq + (frequency_range_per_fft_bin*(index - (fft_resolution/2))))
 
 zmq_pub_sink_context = zmq.Context()
 zmq_pub_sink = zmq_pub_sink_context.socket(zmq.SUB)
@@ -110,8 +109,8 @@ while True:
                     event_frequency = bin_frequency_values[index]
                     event_power = fft_data[index]
                     now = datetime.datetime.now()
-                    event_snr = fft_data[index] - average_power_in_band   
-                    csv_entry="%s,%d,%0.2f,%0.2f\n" % (now.strftime("%d-%m-%Y %H:%M:%S.%f"),event_frequency,event_power,event_snr)
+                    snr_above_threshold = fft_data[index] - average_power_in_band  -  trigger_gain_threshold 
+                    csv_entry="%s,%d,%0.2f,%0.2f\n" % (time.time(),event_frequency,event_power, snr_above_threshold)
                     csv_file.write(csv_entry)
                     csv_file.flush()
                     logging.info(csv_entry)

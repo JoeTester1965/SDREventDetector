@@ -1,6 +1,7 @@
 #!/bin/bash
 
 VIRTUAL_ENV_DIR=$PWD/venv
+CSV_FILE=SDREventDetector.csv
 
 #Use a python virtual env if needed
 if [ -d $VIRTUAL_ENV_DIR ]; then
@@ -10,7 +11,7 @@ else
     exit
 fi
 
-python3 ./csv_viewer.py
+python3 ./csv_viewer.py $CSV_FILE 0.0
 
 if [[ -z $1 ]]
 then
