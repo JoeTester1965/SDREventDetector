@@ -9,7 +9,8 @@
             "console": "integratedTerminal",
             "args": [
                 "SDREventDetector.ini",
-                "SDREventDetector.csv"
+                "SDREventDetector.csv",
+                //"2.0"
             ]
         },
     ]
