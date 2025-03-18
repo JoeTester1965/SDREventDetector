@@ -42,13 +42,7 @@ try:
         zmq_address = config["zmq-network-config"]["zmq_address"]     
         
         seconds_to_buffer = int(config["client"]["seconds_to_buffer"])
-        fft_supersample = 2 ** int(config["client"]["fft_supersample"])
         trigger_gain_threshold = float(config["client"]["trigger_gain_threshold"])
-
-        if fft_supersample >= fft_resolution:
-            logging.critical("fft_supersample needs to be less than %d as fft_resolution is %d. Why not try 1 instead and work up to see what works best for you?",
-                                    math.log2(fft_resolution), fft_resolution)
-            sys.exit()
         
         if config.has_section("mqtt"):
             mqtt_ip_address = config["mqtt"]["mqtt_ip_address"] 
@@ -71,23 +65,20 @@ logging.info("Started")
 csv_file = open(sys.argv[2], 'a')
 
 frequency_range_per_fft_bin = int((sample_rate / 2) / (fft_resolution / 2))
-start_bin = 0
-end_bin = fft_resolution
-rebinned_fft_size = int(fft_resolution / fft_supersample)
 
-rebinned_frequency_values=[]
-for index in range(0, rebinned_fft_size):
-    rebinned_frequency_values.append(int((centre_freq - (int(sample_rate/2))) + ((index + 1) * frequency_range_per_fft_bin * fft_supersample) - 
-                                         ((frequency_range_per_fft_bin * fft_supersample)/ 2)))
+bin_frequency_values=[]
+for index in range(0, fft_resolution):
+    bin_frequency_values.append(int((centre_freq - (int(sample_rate/2))) + ((index + 1) * frequency_range_per_fft_bin * fft_resolution) - 
+                                         ((frequency_range_per_fft_bin * fft_resolution)/ 2)))
 
 zmq_pub_sink_context = zmq.Context()
 zmq_pub_sink = zmq_pub_sink_context.socket(zmq.SUB)
 zmq_pub_sink.connect(zmq_address)
 zmq_pub_sink.setsockopt(zmq.SUBSCRIBE, b'')
 
-xmlrpc_endpoint = ServerProxy(xml_rpc_address)
-
-#   Can then use below to retune and reconfigure radio on the fly
+#   With this cab retune and reconfigure radio on the fly
+#   
+#   xmlrpc_endpoint = ServerProxy(xml_rpc_address)
 #   
 #   xmlrpc_endpoint.set_center_freq(centre_freq)
 #   xmlrpc_endpoint.set_gain(gain)
@@ -95,7 +86,7 @@ xmlrpc_endpoint = ServerProxy(xml_rpc_address)
 #   xmlrpc_endpoint.set_fft_resolution(fft_resolution) 
 #   xmlrpc_endpoint.set_fft_frame_rate(fft_frame_rate) 
 
-fft_data_rebinned_max_history = [np.array([]) for _ in range(rebinned_fft_size)]
+fft_data_history = []
 
 while True:
 
@@ -105,22 +96,22 @@ while True:
         msg = zmq_pub_sink.recv()
         message_size = len(msg)
         data = np.frombuffer(msg, dtype=np.float32, count=fft_resolution)
-        fft_data = data[start_bin:end_bin]
-        fft_data_rebinned = np.split(fft_data, rebinned_fft_size, axis=0)
-        fft_data_rebinned_max = [np.max(subarray) for subarray in fft_data_rebinned]
-        fft_data_rebinned_argmax = [np.argmax(subarray) for subarray in fft_data_rebinned]
-        end_event_frequency = 0
-        end_event_power = 0
-        for index,value in enumerate(fft_data_rebinned_max):
-            fft_data_rebinned_max_history[index] = np.append(fft_data_rebinned_max_history[index], fft_data_rebinned_max[index])
-            if len(fft_data_rebinned_max_history[index]) == (fft_frame_rate * seconds_to_buffer) + 1: 
-                fft_data_rebinned_max_history[index] = np.delete(fft_data_rebinned_max_history[index], 0)
-                average_power_in_band = np.average(fft_data_rebinned_max_history[index])
-                if (fft_data_rebinned_max[index] > (average_power_in_band + trigger_gain_threshold)):
-                    event_frequency = rebinned_frequency_values[index]
-                    event_power = fft_data_rebinned_max[index]
+        fft_data = data[0:fft_resolution]
+
+        fft_data_history.append(fft_data)
+        fft_data_history_as_np = np.asarray(fft_data_history)
+        fft_data_history_mean = fft_data_history_as_np.mean(axis=0)
+
+        if len(fft_data_history) == (fft_frame_rate * seconds_to_buffer) + 1: 
+            del(fft_data_history[0])
+            for index,value in enumerate(fft_data):              
+                average_power_in_band = fft_data_history_mean[index]
+                if (fft_data[index] > (average_power_in_band + trigger_gain_threshold)):
+                    event_frequency = bin_frequency_values[index]
+                    event_power = fft_data[index]
                     now = datetime.datetime.now()
-                    csv_entry="%s,%d,%d\n" % (now.strftime("%d-%m-%Y %H:%M:%S.%f"),event_frequency, event_power)
+                    event_snr = fft_data[index] - average_power_in_band   
+                    csv_entry="%s,%d,%0.2f,%0.2f\n" % (now.strftime("%d-%m-%Y %H:%M:%S.%f"),event_frequency,event_power,event_snr)
                     csv_file.write(csv_entry)
                     csv_file.flush()
                     logging.info(csv_entry)
