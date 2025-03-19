@@ -15,13 +15,13 @@ python3 ./csv_viewer.py $CSV_FILE 0.0
 
 if [[ -z $1 ]]
 then
-	dir=./output/$(date +%d-%m-%Y-%H-%M)
+	prefix=./$(date +%d-%m-%Y-%H-%M)
 else
-	dir=$1/$(date +%d-%m-%Y-%H-%M)
+	prefix=$1/$(date +%d-%m-%Y-%H-%M)
 fi
 
-cp -f events-by-frequency.jpg $dir-events-by-frequency.jpg
-cp -f events-by-timeofday.jpg $dir-events-by-timeofday.jpg
+cp -f events-by-frequency.jpg $prefix-events-by-frequency.jpg
+cp -f events-by-timeofday.jpg $prefix-events-by-timeofday.jpg
 
 deactivate
 
