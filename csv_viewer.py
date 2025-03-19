@@ -28,7 +28,9 @@ snr_above_threshold_cutoff = float(sys.argv[2])
 
 event_df = event_df[event_df['snr_above_threshold'] > snr_above_threshold_cutoff]
 
-title = "Events by frequency"
+event_df['snr_above_threshold'] = event_df['snr_above_threshold']  - snr_above_threshold_cutoff
+
+title = "Events by time of day exceeding and minus snr_above_threshold given in command line"
 
 event_df_expanded_1 = event_df[['timestamp-utc','frequency','snr_above_threshold']] 
 event_df_expanded_2 = event_df[['timestamp-utc','frequency','snr_above_threshold']]
@@ -49,7 +51,7 @@ plot_filename = os.getcwd() + '/events-by-frequency.jpg'
 logging.info("Saving %s", plot_filename)
 graph.save(filename = plot_filename, dpi = 600)
 
-title = "Events by time of day"
+title = "Events by time of day exceeding and minus snr_above_threshold given in command line"
 
 event_df['timestamp-utc-copy'] = event_df['timestamp-utc']
 event_df['timestamp-utc-copy'] = event_df['timestamp-utc-copy'].apply(lambda dt: dt.replace(hour=0,minute=0,second=0))
