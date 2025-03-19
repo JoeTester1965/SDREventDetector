@@ -109,8 +109,8 @@ while True:
                     event_frequency = bin_frequency_values[index]
                     event_power = fft_data[index]
                     now = datetime.datetime.now()
-                    snr_above_threshold = fft_data[index] - average_power_in_band  -  trigger_gain_threshold 
-                    csv_entry="%s,%d,%0.2f,%0.2f\n" % (time.time(),event_frequency,event_power, snr_above_threshold)
+                    snr = fft_data[index] - average_power_in_band
+                    csv_entry="%s,%d,%0.2f,%0.2f\n" % (time.time(),event_frequency,event_power, snr)
                     csv_file.write(csv_entry)
                     csv_file.flush()
                     logging.info(csv_entry)
