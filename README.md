@@ -92,7 +92,7 @@ pi@ShedPi:~/Documents/SDREventDetector $ tail -f SDREventDetector.csv
 bash ./visualise.sh /tmp
 ```
 
-Files like below will be stored in /tmp/:
+Files like below will be stored in /tmp
 
 ![events-by-timeofday.jpg](./events-by-timeofday.jpg)
 
