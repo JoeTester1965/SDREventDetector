@@ -44,11 +44,11 @@ Edit the [config file](SDREventDetector.ini) to adjust the following which has b
 | sample_rate | Sample rate for your radio .|
 | fft_resolution | How many bands to split the signal up into. Must be a power of 2 e.g 512, 1024 or 2048. Too high a value will cause peformance issues and error logs.|
 | fft_frame_rate | How often the fft is updated. Use a higher value for signals only present for a short time. Too high a value will cause peformance issues and error logs. |
+| seconds_to_buffer | Leave default unless have specialist needs for gain detection or performance problems |
+| *trigger_gain_threshold* | Tune to what is requred by your application to generate sensible events |
 | zmq_address | Leave unless have adress conflict or remote networked radio. |
 | xml_rpc_port | Leave unless have adress conflict. |
 | xml_rpc_server | Leave unless have adress conflict  or remote networked radio. |
-| seconds_to_buffer | Leave default unless have specialist needs for gain detection or performance problems |
-| trigger_gain_threshold | Tune to what is requred by your applicaiton to generate sensible events |
 | mqtt_ip_address | Only use mqtt section if you have a messaging server |
 | mqtt_username | .. |
 | mqtt_password | .. |
