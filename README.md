@@ -99,7 +99,7 @@ Files like below will be stored in /tmp
 ![events-by-frequency.jpg](./events-by-frequency.jpg)
 
 
-Note that is there are too many events here for your liking, you can edit the command used by visualise.sh to increase the cutoff power before events are visible e,g,
+If there are too many events here for your liking, you can edit the command used by visualise.sh to increase the cutoff power before events are visible:
 
 ```console
 python3 ./csv_viewer.py $CSV_FILE 24.0
