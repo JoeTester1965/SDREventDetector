@@ -42,8 +42,8 @@ Edit the [config file](SDREventDetector.ini) to adjust the following which has b
 | centre_freq | Where to tune your radio. |
 | gain | What gain your radio needs. |
 | sample_rate | Sample rate for your radio .|
-| fft_resolution | How many bands to split the signal up into. Must be a power of 2 e.g 512, 1024 or 2048. Too high a value will cause peformance issues and erroe logs.|
-| fft_frame_rate | How often the fft is updated. Use a higher value for signals only present for a short time. Too high a value will cause peformance issues and erroe logs. |
+| fft_resolution | How many bands to split the signal up into. Must be a power of 2 e.g 512, 1024 or 2048. Too high a value will cause peformance issues and error logs.|
+| fft_frame_rate | How often the fft is updated. Use a higher value for signals only present for a short time. Too high a value will cause peformance issues and error logs. |
 | zmq_address | Leave unless have adress conflict or remote networked radio. |
 | xml_rpc_port | Leave unless have adress conflict. |
 | xml_rpc_server | Leave unless have adress conflict  or remote networked radio. |
