@@ -1,14 +1,12 @@
 # SDREventDetector
 
-Log, message and graph simple SDR derived local events such car key fobs being pressed, mobile phones transmitting, bats chirping or whatever within the range your SDR is operating at.
+Log, message and graph simple SDR derived local events such car key fobs being pressed and  mobile phones transmitting within the range of your RTL SDR.
+
+Does this by taking a FFT of your radio data, finding the average power in a given band over a specified time interval and then creating an event where there is a gain increase greater than the given threshold.
 
 # Installation
 
 Tested on Pi Debian Bookwork 64bit 2024-03-15.
-
-Some experience will be needed with Linux, GnuRadio and a sensor / SDR receiver pair that works in the frequency range required.
-
-Note: a venv is needed for visualisation scripts as plotnine install can muck up gnuradio.
 
 ```console
 sudo apt-get update 
@@ -19,18 +17,14 @@ source venv/bin/activate
 pip3 install plotnine
 deactivate
 chmod u+x start.sh stop.s visualise.sh
-```
-
-Then follow the specific instructions required for your software radio libraries and gnuradio interface. e.g. for rtlsdr using built in gnu radio soapy RTLSDR source:
-
-```console
 sudo apt-get install rtl-sdr
 ```
 
+Note: a python venv is needed for visualisation scripts as plotnine install can muck up gnuradio.
 
 # Design
 
-Used gnuradio companion to create a simple flowgraph that allows fft output from the radio to be configured and consumed by a seperate python program.
+Used gnuradio companion to create a simple flowgraph that allows fft output from the radio to be configured and consumed by a seperate python program. 
 
 ![GRC sketch](./flowgraph.jpg)
 
@@ -44,23 +38,22 @@ The python program [zmqpubsink.py](.\zmqpubsink.py) produces events from this as
 Edit the [config file](SDREventDetector.ini) to adjust the following which has been configured to look for car key fobs at 433 MHz.
 
 | Key | Notes |
-|    :----:   |          :--- |
-| sample_rate  | Suggest leaving, may need to subsequently tweak the decimation and interpolation values on the graph. |
-| decimation | Default works well. |
-| fft_resolution | Ditto. |
-| fft_frame_rate  | Ditto. |
-| audio_conversion_gain  | Ditto. |
-| start_freq  | Where to start looking for events. |
-| end_freq  | If you need to increase this, you will need to increase the sample rate and then maybe tweak the decimation and interpolation values on the graph. |
-| freq_bin_range  | The fft is re-aggregrated based on this size to allow for more detailed but not over the top event generation. |
-| trigger_gain_threshold  | Spike in received power required to generate an event. |
-| trigger_abs_threshold  | So not use event if power is less than this |
-| retrigger_seconds | Do not generate more than one event in this 'comparison against rolling average' interval. |
-| bin_count_threshold | Must see activity over this number of bins to be a valid event |
-| mqtt_ip_address  | Optional messaging server. |
-| mqtt_username  | Ditto. |
-| mqtt_password  | Ditto. |
-| mqtt_topic  | Ditto. |
+| :----: | :--- |
+| centre_freq | Where to tune your radio. |
+| gain | What gain your radio needs. |
+| sample_rate | Sample rate for your radio .|
+| fft_resolution | How many bands to split the signal up into. Must be a power of 2 e.g 512, 1024 or 2048. Too high a value will cause peformance issues and erroe logs.|
+| fft_frame_rate | How often the fft is updated. Use a higher value for signals only present for a short time. Too high a value will cause peformance issues and erroe logs. |
+| zmq_address | Leave unless have adress conflict or remote networked radio. |
+| xml_rpc_port | Leave unless have adress conflict. |
+| xml_rpc_server | Leave unless have adress conflict  or remote networked radio. |
+| seconds_to_buffer | Leave default unless have specialist needs for gain detection or performance problems |
+| trigger_gain_threshold | Tune to what is requred by your applicaiton to generate sensible events |
+| mqtt_ip_address | Only use mqtt section if you have a messaging server |
+| mqtt_username | .. |
+| mqtt_password | .. |
+| mqtt_topic | .. |
+
 
 # Starting and stopping
 
@@ -76,42 +69,52 @@ bash stop.sh
 
 A real-time csv file is created with event information:
 
-***timestamp,event_frequency,,event_power***
+***timestamp-utc,frequency,power,snr***
 
 
 ```console
 pi@ShedPi:~/Documents/SDREventDetector $ tail -f SDREventDetector.csv 
-17-03-2025 16:18:58.863218,433136000,-41
-17-03-2025 16:18:58.864690,433200000,-40
-17-03-2025 16:18:58.866263,433456000,-38
-17-03-2025 16:18:58.867525,433648000,-38
-17-03-2025 16:18:58.868460,433712000,-40
-17-03-2025 16:18:58.869379,433776000,-39
-17-03-2025 16:18:58.871553,434864000,-43
-17-03-2025 16:18:58.873869,433008000,-43
+1742471097.7432244,434390000,-38.47,21.75
+1742471506.126904,434540000,-39.27,20.50
+1742471534.4082444,435022000,-41.92,21.41
+1742471766.2127216,434298000,-38.18,20.13
+1742471842.0531104,434702000,-37.39,20.05
+1742471842.0537055,434704000,-36.65,20.77
+1742472059.3957329,434092000,-43.50,21.06
+1742472071.9372394,433756000,-42.16,20.06
+1742472946.1153631,433744000,-39.25,20.33
+1742474639.9456496,434808000,-39.86,20.80
 ```
-
-# Configuration
-
-Edit the gnuradio sketch source block if you have a different source than the rspdx-r2.
-
-For remote audio place you remote IP and port in the [UDP sink](./sketch.png) block and run this at the remote end:
-
-```console
-ffplay -f f32le -ar 25000 -fflags nobuffer -nodisp -i udp://127.0.0.1:50243 -af "volume=2.0"
-```
-Note that in the line above, 25000 comes from sample_rate/decimation in the ini file.
-
-Note any errors creating the venv above, you may need to install other packages as auggested for this.
 
 # Visualisation
 
 ```console
-bash ./visualise.sh
+bash ./visualise.sh /tmp
 ```
-![events-by-timeofday.jpg](./example-events-by-timeofday.jpg)
 
-![events-by-frequency.jpg](./example-events-by-frequency.jpg)
+Files like below will be stored in /tmp/:
+
+![events-by-timeofday.jpg](./events-by-timeofday.jpg)
+
+![events-by-frequency.jpg](./events-by-frequency.jpg)
+
+
+Note that is there are too many events here for your liking, you can edit the command used by visualise.sh to increase the cutoff power before events are visible e,g,
+
+```console
+python3 ./csv_viewer.py $CSV_FILE 24.0
+```
+rather than
+
+```console
+python3 ./csv_viewer.py $CSV_FILE 0.0
+```
+
+Giving this instead:
+
+![events-by-timeofday.jpg](./events-by-timeofday-example-cutoff-24.jpg)
+
+![events-by-frequency.jpg](./events-by-frequency-example-cutoff-24.jpg)
 
 Enjoy!
 

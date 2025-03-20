@@ -101,7 +101,7 @@ while True:
         fft_data_history_as_np = np.asarray(fft_data_history)
         fft_data_history_mean = fft_data_history_as_np.mean(axis=0)
 
-        if len(fft_data_history) >= (fft_frame_rate * seconds_to_buffer) + 1: 
+        if len(fft_data_history) >= int((fft_frame_rate * seconds_to_buffer) + 1): 
             del(fft_data_history[0])
             for index,value in enumerate(fft_data):              
                 average_power_in_band = fft_data_history_mean[index]
