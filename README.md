@@ -18,6 +18,7 @@ python3 -m venv venv
 source venv/bin/activate
 pip3 install plotnine
 deactivate
+chmod u+x start.sh stop.s visualise.sh
 ```
 
 Then follow the specific instructions required for your software radio libraries and gnuradio interface. e.g. for rtlsdr using built in gnu radio soapy RTLSDR source:

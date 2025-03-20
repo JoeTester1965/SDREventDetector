@@ -110,7 +110,7 @@ while True:
                     event_power = fft_data[index]
                     now = datetime.datetime.now()
                     snr = fft_data[index] - average_power_in_band
-                    csv_entry="%s,%d,%0.2f,%0.2f\n" % (time.time(),event_frequency,event_power, snr)
+                    csv_entry="%s,%d,%0.2f,%0.2f\n" % (time.time(),event_frequency,event_power,snr)
                     csv_file.write(csv_entry)
                     csv_file.flush()
                     logging.info(csv_entry)
